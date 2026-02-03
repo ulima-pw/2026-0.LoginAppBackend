@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from uuid import uuid4
+from routers import categorias, videojuegos
 
 app = FastAPI()
 
@@ -16,24 +16,9 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-
 class LoginRequest(BaseModel):
     username : str = Field(..., min_length=5)
     password : str = Field(..., min_length=8)
-
-class Categoria(BaseModel):
-    id : str | None = None
-    nombre : str
-
-class Videojuego(BaseModel):
-    id : str | None = None
-    nombre : str
-    descripcion : str
-    url_imagen : str
-    categoria : Categoria
-
-
-categorias = []
 
 @app.post("/login")
 async def login(login_request : LoginRequest):
@@ -46,50 +31,6 @@ async def login(login_request : LoginRequest):
             status_code=400, 
             detail="Error en login, credenciales incorrectas")
 
-@app.get("/categorias")
-async def list_categorias():
-    return {
-        "msg" : "",
-        "data" : categorias
-    }
+app.include_router(categorias.router)
+app.include_router(videojuegos.router)
 
-@app.post("/categorias")
-async def create_categoria(categoria : Categoria):
-    categoria.id = str(uuid4())
-    # TODO: Trabajar con una base de datos
-    categorias.append(categoria)
-    return {
-        "msg" : "",
-        "data" : categoria
-    }
-
-@app.put("/categorias")
-async def update_categoria(categoria : Categoria):
-    for cat in categorias:
-        if cat.id == categoria.id:
-            # Se encontro la categoria
-            cat.nombre = categoria.nombre
-            return {
-                "msg" : "",
-                "data" : cat
-            }
-    raise HTTPException(
-        status_code=404,
-        detail="Categoria id does not exist"
-    ) 
-
-@app.delete("/categorias/{categoria_id}")
-async def delete_categoria(categoria_id : str):
-    for i,cat in enumerate(categorias):
-        if cat.id == categoria_id:
-            categorias.pop(i)
-            return {
-                "msg" : ""
-            }
-        
-    raise HTTPException(
-        status_code=404,
-        detail="Cannot delete the category: Not found"
-    )
-    
-        
