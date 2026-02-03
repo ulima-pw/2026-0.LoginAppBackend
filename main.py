@@ -50,9 +50,23 @@ async def login(login_request : LoginRequest):
 async def list_categorias():
     return categorias
 
-@app.post("/categoria")
+@app.post("/categorias")
 async def create_categoria(categoria : Categoria):
     categoria.id = str(uuid4())
     # TODO: Trabajar con una base de datos
     categorias.append(categoria)
     return categoria
+
+@app.put("/categorias")
+async def update_categoria(categoria : Categoria):
+    for cat in categorias:
+        if cat.id == categoria.id:
+            # Se encontro la categoria
+            cat.nombre = categoria.nombre
+            return cat
+    raise HTTPException(
+        status_code=404,
+        detail="Categoria id does not exist"
+    ) 
+    
+        
