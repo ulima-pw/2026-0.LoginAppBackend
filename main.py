@@ -48,14 +48,20 @@ async def login(login_request : LoginRequest):
 
 @app.get("/categorias")
 async def list_categorias():
-    return categorias
+    return {
+        "msg" : "",
+        "data" : categorias
+    }
 
 @app.post("/categorias")
 async def create_categoria(categoria : Categoria):
     categoria.id = str(uuid4())
     # TODO: Trabajar con una base de datos
     categorias.append(categoria)
-    return categoria
+    return {
+        "msg" : "",
+        "data" : categoria
+    }
 
 @app.put("/categorias")
 async def update_categoria(categoria : Categoria):
@@ -63,10 +69,27 @@ async def update_categoria(categoria : Categoria):
         if cat.id == categoria.id:
             # Se encontro la categoria
             cat.nombre = categoria.nombre
-            return cat
+            return {
+                "msg" : "",
+                "data" : cat
+            }
     raise HTTPException(
         status_code=404,
         detail="Categoria id does not exist"
     ) 
+
+@app.delete("/categorias/{categoria_id}")
+async def delete_categoria(categoria_id : str):
+    for i,cat in enumerate(categorias):
+        if cat.id == categoria_id:
+            categorias.pop(i)
+            return {
+                "msg" : ""
+            }
+        
+    raise HTTPException(
+        status_code=404,
+        detail="Cannot delete the category: Not found"
+    )
     
         
