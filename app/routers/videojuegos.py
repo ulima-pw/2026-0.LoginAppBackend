@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from routers.categorias import Categoria
+from ..routers.categorias import Categoria
 
 class Videojuego(BaseModel):
     id : str | None = None
