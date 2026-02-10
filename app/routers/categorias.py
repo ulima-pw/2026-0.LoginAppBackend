@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 import datetime
 from ..data import accesos
 from ..database import get_db
-from ..models import Acceso, Categoria
+from ..models import Acceso, CategoriaModel
 
 
 class Categoria(BaseModel):
@@ -40,7 +40,7 @@ async def verify_token(x_token : str = Header(...), db: Session = Depends(get_db
 
 @router.get("/", dependencies=[Depends(verify_token)])
 async def list_categorias(db: Session = Depends(get_db)):
-    lista = db.query(Categoria).all()
+    lista = db.query(CategoriaModel).all()
 
     return {
         "msg" : "",

@@ -24,7 +24,7 @@ class Acceso(Base):
         DateTime
     )
 
-class Categoria(Base):
+class CategoriaModel(Base):
     __tablename__ = "categoria"
     id = Column(
         UUID(as_uuid=True),
