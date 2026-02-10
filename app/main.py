@@ -6,9 +6,10 @@ from .routers import categorias, videojuegos
 from .data import accesos
 from .database import get_db
 from sqlalchemy.orm import Session
-from .models import Usuario
+from .models import Usuario, Acceso
 
 import time
+import datetime
 
 app = FastAPI()
 
@@ -47,47 +48,34 @@ async def login(login_request : LoginRequest, db : Session = Depends(get_db)):
         cadena_a_encriptar.encode("utf-8"), 
         bcrypt.gensalt()
     )
-    #accesos[cadena_hasheada] = {
-    #    "ultimo_login" : time.time_ns()
-    #}
+
+    db_acceso = Acceso(
+        id = cadena_hasheada.decode("utf-8"),
+        ultimo_login = datetime.datetime.now()
+    )
+    db.add(db_acceso) # Guardamos el acceso en db
+    db.commit()
+    db.refresh(db_acceso)
 
     return {
         "msg" : "Acceso concedido",
         "token" : cadena_hasheada
     }
-
-
-    # if login_request.username == "PROGRAWEB" and login_request.password == "123123123":
-    #     hora_actual = time.time_ns()
-    #     cadena_a_encriptar = f"{login_request.username}-{str(hora_actual)}"
-    #     cadena_hasheada = bcrypt.hashpw(
-    #         cadena_a_encriptar.encode("utf-8"), 
-    #         bcrypt.gensalt()
-    #     )
-    #     accesos[cadena_hasheada] = {
-    #         "ultimo_login" : time.time_ns()
-    #     }
-
-    #     return {
-    #         "msg" : "Acceso concedido",
-    #         "token" : cadena_hasheada
-    #     }
-    # else:
-    #     raise HTTPException(
-    #         status_code=400, 
-    #         detail="Error en login, credenciales incorrectas")
     
 @app.get("/logout")
-async def logout(token : str):
-    if token.encode("utf-8") in accesos:
-        accesos.pop(token.encode("utf-8"))
-        return {
-            "msg" : ""
-        }
-    else :
+async def logout(token : str, db : Session = Depends(get_db)):
+    db_acceso = db.query(Acceso).filter(Acceso.id == token).first()
+
+    if not db_acceso:
         return {
             "msg" : "Token no existe"
         }
+    
+    db.delete(db_acceso)
+    db.commit()
+    return {
+        "msg" : ""
+    }
 
 app.include_router(categorias.router)
 app.include_router(videojuegos.router)
