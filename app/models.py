@@ -27,7 +27,8 @@ class Perfil(Base):
     pais = Column(String)
     usuario_id = Column(
         String(36),
-        ForeignKey("usuario.id", unique=True)
+        ForeignKey("usuario.id"),
+        unique=True
     )
     usuario = relationship("Usuario", back_populates="perfil")
 
@@ -74,7 +75,8 @@ class Videojuego(Base):
     url_imagen = Column(String)
     categoria_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("categoria.id", unique=True)
+        ForeignKey("categoria.id"),
+        unique=True
     )
 
     categoria = relationship("CategoriaModel", back_populates="videojuegos")
