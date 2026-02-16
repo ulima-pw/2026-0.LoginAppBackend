@@ -57,8 +57,8 @@ class CategoriaModel(Base):
 videojuego_plataforma = Table(
     "videojuego_plataforma",
     Base.metadata,
-    Column("videojuego_id", ForeignKey("Videojuego.id"), primary_key=True),
-    Column("plataforma_id", ForeignKey("Plataforma.id"), primary_key=True)
+    Column("videojuego_id", ForeignKey("videojuego.id"), primary_key=True),
+    Column("plataforma_id", ForeignKey("plataforma.id"), primary_key=True)
 )
 
 class Videojuego(Base):
