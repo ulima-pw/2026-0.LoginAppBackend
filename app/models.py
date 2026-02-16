@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import UUID, Column, String, DateTime, ForeignKey
+from sqlalchemy import UUID, Column, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -54,6 +54,13 @@ class CategoriaModel(Base):
 
     videojuegos = relationship("Videojuego", back_populates="categoria")
 
+videojuego_plataforma = Table(
+    "videojuego_plataforma",
+    Base.metadata,
+    Column("videojuego_id", ForeignKey("Videojuego.id"), primary_key=True),
+    Column("plataforma_id", ForeignKey("Plataforma.id"), primary_key=True)
+)
+
 class Videojuego(Base):
     __tablename__ = "videojuego"
     id = Column(
@@ -71,3 +78,24 @@ class Videojuego(Base):
     )
 
     categoria = relationship("CategoriaModel", back_populates="videojuegos")
+    plataformas = relationship(
+        "Plataforma", 
+        secondary=videojuego_plataforma, 
+        back_populates="videojuegos"
+    )
+
+class Plataforma(Base):
+    __tablename__ = "plataforma"
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4()),
+        index=True
+    )
+    nombre = Column(String)
+
+    videojuegos = relationship(
+        "Videojuego",
+        secondary=videojuego_plataforma,
+        back_populates="plataformas"
+    )
