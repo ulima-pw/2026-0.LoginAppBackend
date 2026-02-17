@@ -25,6 +25,7 @@ class Perfil(Base):
     )
     nombre = Column(String)
     pais = Column(String)
+    direccion = Column(String)
     usuario_id = Column(
         String(36),
         ForeignKey("usuario.id"),
