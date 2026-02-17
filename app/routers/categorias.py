@@ -36,7 +36,9 @@ async def verify_token(x_token : str = Header(...), db: Session = Depends(get_db
 
 @router.get("/", dependencies=[Depends(verify_token)])
 async def list_categorias(db: Session = Depends(get_db)):
-    lista = db.query(CategoriaModel).options(selectinload(CategoriaModel.videojuegos)).all()
+    lista = db.query(CategoriaModel).options(
+        selectinload(CategoriaModel.videojuegos)
+    ).all()
     
 
     return {
