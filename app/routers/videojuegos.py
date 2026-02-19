@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from sqlalchemy.orm import Session, selectinload
 
 from ..models import Videojuego
 from ..database import get_db
@@ -14,7 +13,10 @@ router = APIRouter(
 
 @router.get("/", dependencies=[Depends(verify_token)])
 async def list_videojuegos(db: Session = Depends(get_db)):
-    db_videojuegos = db.query(Videojuego).all()
+    db_videojuegos = db.query(Videojuego).options(
+        selectinload(Videojuego.categoria),
+        selectinload(Videojuego.plataformas)
+    ).all()
 
     return {
         "msg" : "",
