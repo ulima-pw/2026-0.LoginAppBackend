@@ -1,11 +1,10 @@
 from uuid import uuid4
-from fastapi import APIRouter, Depends, HTTPException, Header
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, selectinload
-import datetime
-from ..data import accesos
+
+from .security import verify_token
 from ..database import get_db
-from ..models import Acceso, CategoriaModel
+from ..models import CategoriaModel
 from ..schemas import Categoria
 
 router = APIRouter(
@@ -14,25 +13,6 @@ router = APIRouter(
 )
 
 categorias = []
-
-async def verify_token(x_token : str = Header(...), db: Session = Depends(get_db)):
-    db_query = db.query(Acceso).filter(Acceso.id == x_token)
-    db_acceso = db_query.first()
-    if not db_acceso:
-        raise HTTPException(
-            status_code=403,
-            detail={
-                "msg" : "Token incorrecto"
-            }
-        )
-    
-    db_query.update({
-        "ultimo_login" : datetime.datetime.now()
-    })
-    db.commit()
-    db.refresh(db_acceso)
-
-    return x_token
 
 @router.get("/", dependencies=[Depends(verify_token)])
 async def list_categorias(db: Session = Depends(get_db)):
